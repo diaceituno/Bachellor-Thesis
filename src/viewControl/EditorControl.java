@@ -1045,6 +1045,11 @@ public class EditorControl {
 	}
 	
 	@FXML
+	private void duplicatePageAction() {
+		
+	}
+	
+	@FXML
 	private void tableOK(){
 		secStage.close();
 	}

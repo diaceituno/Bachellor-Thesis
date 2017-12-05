@@ -75,6 +75,5 @@ public class HubControl {
 	private void groupAction() {
 		MainController.groupScene();
 	}
-	
-	
+
 }

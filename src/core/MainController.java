@@ -24,7 +24,7 @@ public class MainController extends Application{
 	
 	/*Scenes*/
 	private LoginControl loginControl;
-	private HubControl hubControl; 
+	private static HubControl hubControl; 
 	private static EditorControl editorControl;
 	private static ConfigurationControl configControl;
 	private static GroupControl groupControl;
@@ -164,4 +164,5 @@ public class MainController extends Application{
 			editorControl.updateBranch();
 		}
 	}
+
 }
