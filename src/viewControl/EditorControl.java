@@ -39,6 +39,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Line;
 import javafx.stage.Modality;
@@ -183,7 +184,7 @@ public class EditorControl {
 		
 		scene.focusOwnerProperty().addListener((ob,ov,nv)->{
 			if(nv.getClass().equals(TextArea.class)) {
-				System.out.println(nv.getId());
+				//AKI VA EL GROSOR DE LA LETRA PERRO
 			}
 		});
 		
@@ -194,6 +195,18 @@ public class EditorControl {
 				}
 				selection = false;
 				page.setCursor(Cursor.DEFAULT);
+			}else if(e.isControlDown()) {
+			 	if(e.getCode() == KeyCode.N) {
+					newAction();
+				}else if(e.getCode() == KeyCode.O) {
+					loadAction();
+				}else if(e.getCode() == KeyCode.S) {
+					saveAction();
+				}else if(e.getCode() == KeyCode.RIGHT) {
+					nextPageAction();
+				}else if(e.getCode() == KeyCode.LEFT) {
+					prevPageAction();
+				}
 			}
 		});
 		
@@ -459,7 +472,6 @@ public class EditorControl {
 		for(int row = 1; row < rows; row++) {
 			TextArea area = new TextArea();
 			area.setWrapText(true);
-			area.setText(String.valueOf(cols + row));
 			area.setPrefWidth(colWidth);
 			area.setPrefHeight(rowHeight);
 			area.setLayoutX(15);
@@ -548,6 +560,7 @@ public class EditorControl {
 			cMenu.getItems().addAll(itemLabel, noteLabel,item1, item2, item3, item4, item5);
 			area.setContextMenu(cMenu);
 		}
+		
 		((TextArea) areas.getChildren().get(0)).setContextMenu(null);
 		
 		
@@ -804,6 +817,13 @@ public class EditorControl {
 		if(sScene == null) {
 			AnchorPane pane = (AnchorPane) MainController.getIOControl().loadPane("saveView.fxml", this);
 			sScene = new Scene(pane);
+			sScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
+				if(e.getCode() == KeyCode.ESCAPE) {
+					secStage.close();
+				}else if(e.getCode() == KeyCode.ENTER) {
+					save();
+				}
+			});	
 			
 			//fPollSList = new FilteredList<String>(FXCollections.observableArrayList(), p -> true);
 			TableColumn<String,String> tCol = new TableColumn<String,String>();
@@ -845,8 +865,14 @@ public class EditorControl {
 		if(lScene == null) {
 			AnchorPane pane = (AnchorPane) MainController.getIOControl().loadPane("loadView.fxml", this);
 			lScene = new Scene(pane);
-			
-			
+			lScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
+				if(e.getCode() == KeyCode.ESCAPE) {
+					secStage.close();
+				}
+				if(e.getCode() == KeyCode.ENTER) {
+					load();
+				}
+			});	
 			TableColumn<String,String> tCol = new TableColumn<String,String>();
 			tCol.setCellValueFactory(cD -> new SimpleStringProperty(cD.getValue()));
 			tCol.setPrefWidth(tViewPolls.getPrefWidth());
@@ -889,6 +915,7 @@ public class EditorControl {
 			pages.clear();
 			currentPage = -1;
 			page.getChildren().clear();
+			iCount = 0;
 			newPageAction();	
 		}	
 	}
@@ -902,9 +929,8 @@ public class EditorControl {
 			db.connect();
 			String[] fxmls = db.queryPagesInPoll(MainController.getBranch(), selection);
 			pages.clear();
-			System.out.println(fxmls.length);
 			db.close();
-			
+			iCount = 0;
 			for(String fxml : fxmls) {
 
 				Group root = null;
@@ -915,6 +941,7 @@ public class EditorControl {
 					e.printStackTrace();
 				}
 				if(root != null) {
+				
 					ObservableList<Node> rootChildren = root.getChildren();
 					for(Node lvlOne : rootChildren) {
 						
@@ -940,7 +967,7 @@ public class EditorControl {
 								
 								addTblHandlers(areas,verticals,horizontals);
 							}else {
-								
+								iCount++;
 								for(Node areas : oneChildren) {
 									addTxtHandlers((TextArea) areas);
 								}
@@ -949,6 +976,7 @@ public class EditorControl {
 							addTxtHandlers((TextArea) lvlOne);
 						}
 					}
+					System.out.println(iCount);
 					pages.add(root);
 				}	
 			}
@@ -1047,6 +1075,90 @@ public class EditorControl {
 	@FXML
 	private void duplicatePageAction() {
 		
+		ObservableList<Node> children = pages.get(currentPage).getChildren();
+		Group newPage = new Group();
+		ObservableList<Node> npChildren = newPage.getChildren();
+		for(Node lvlOne : children) {
+			
+			if(lvlOne.getClass().equals(TextArea.class)) {
+				
+				npChildren.add(dupArea((TextArea) lvlOne));
+				
+			}else {
+			
+				if(lvlOne.getId().equals("i")) {
+					
+					ObservableList<Node> inputChildren = ((Group) lvlOne).getChildren();
+					Group inputGroup = new Group();
+					for(Node lvlTwo : inputChildren) {
+					
+						inputGroup.getChildren().add(dupArea((TextArea) lvlTwo));
+					}
+					npChildren.add(inputGroup);
+				}else if(lvlOne.getId().equals("t")) {
+					
+					Group tableGroup = new Group();
+					Group areas = new Group();
+					Group verticals = new Group();
+					Group horizontals = new Group();
+					
+					ObservableList<Node> tableChildren = ((Group) lvlOne).getChildren();
+					for(Node lvlTwo : tableChildren) {
+						if(lvlTwo.getId().equals("a")) {
+		
+							ObservableList<Node> areaChildren = ((Group) lvlTwo).getChildren();
+							for(Node lvlThree : areaChildren) {
+								areas.getChildren().add(dupArea((TextArea) lvlThree));
+							}
+							
+						}else {
+							
+							ObservableList<Node> lineChildren = ((Group) lvlTwo).getChildren();
+							Group tmpLineGroup = new Group();
+							for(Node lvlThree : lineChildren) {
+								tmpLineGroup.getChildren().add(dupLine((Line)lvlThree));
+							}
+							tmpLineGroup.setId(lvlTwo.getId());
+							if(tmpLineGroup.getId().equals("v")) {
+								verticals = tmpLineGroup;
+							}else {
+								horizontals = tmpLineGroup;
+							}
+						}
+					}
+					tableGroup.getChildren().addAll(areas,verticals,horizontals);
+					addTblHandlers(areas,verticals,horizontals);
+					npChildren.add(tableGroup);
+				}
+				
+			}
+		}
+		pages.add(newPage);
+		updatePageLabel();
+	}
+
+	private TextArea dupArea(TextArea old) {
+		TextArea newArea = new TextArea();
+		newArea.setPrefHeight(old.getPrefHeight());
+		newArea.setPrefWidth(old.getPrefWidth());
+		newArea.setLayoutX(old.getLayoutX());
+		newArea.setLayoutY(old.getLayoutY());
+		newArea.setText(old.getText());
+		newArea.setPromptText(old.getPromptText());
+		newArea.setFont(old.getFont());
+		newArea.setId(old.getId());
+		return newArea;
+	}
+	
+	private Line dupLine(Line old) {
+		
+		Line newLine = new Line();
+		newLine.setStartX(old.getStartX());
+		newLine.setEndX(old.getEndX());
+		newLine.setStartY(old.getStartY());
+		newLine.setEndY(old.getEndY());
+		
+		return newLine;
 	}
 	
 	@FXML
