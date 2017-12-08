@@ -520,12 +520,12 @@ public class EditorControl {
 			TextArea area = (TextArea) areas.getChildren().get(i);
 			/*Context Menu*/
 			ContextMenu cMenu = new ContextMenu();
-			MenuItem itemLabel = new MenuItem("Note hinzufügen");
+			MenuItem itemLabel = new MenuItem("Note hinzufÃ¼gen");
 			itemLabel.setDisable(true);
 			itemLabel.setStyle("-fx-opacity: 2.0;");
 			MenuItem noteLabel = new MenuItem();
 			if(area.getId() == null) {
-				noteLabel.setText("Keine Note hinzugefügt");
+				noteLabel.setText("Keine Note hinzugefÃ¼gt");
 			}else {
 				noteLabel.setText("Note: " + area.getId());
 			}
@@ -898,7 +898,7 @@ public class EditorControl {
 		}
 		
 		secStage.setScene(lScene);
-		secStage.setTitle("öffnen");
+		secStage.setTitle("ï¿½ffnen");
 		updateBranch();
 		secStage.showAndWait();
 	}
@@ -909,7 +909,7 @@ public class EditorControl {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Vorsicht!");
 		alert.setHeaderText(null);
-		alert.setContentText("Wenn sie OK drücken werden alle ungespeicherte Daten verloren\n");
+		alert.setContentText("Wenn sie OK drï¿½cken werden alle ungespeicherte Daten verloren\n");
 		Optional<ButtonType> result = alert.showAndWait();
 		if(result.get() == ButtonType.OK) {
 			pages.clear();
@@ -1007,7 +1007,7 @@ public class EditorControl {
 				Alert alert = new Alert(AlertType.CONFIRMATION);
 				alert.setTitle("Vorsicht");
 				alert.setHeaderText(null);
-				alert.setContentText("Wollen sie die Form wirklich überschreiben?");
+				alert.setContentText("Wollen sie die Form wirklich ï¿½berschreiben?");
 				Optional<ButtonType> result = alert.showAndWait();
 				if(result.get() == ButtonType.OK) {
 					dbControl.deletepollFromBranch(MainController.getBranch(), pollName);
@@ -1057,19 +1057,26 @@ public class EditorControl {
 	
 	@FXML
 	private void removePageAction() {
-		pages.remove(pages.get(currentPage));
-		if(currentPage > 0) {
-			currentPage --;
-		}else {
-			currentPage++;
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setHeaderText(null);
+		alert.setTitle("Vorsicht");
+		alert.setContentText("Wollen sie die Seite wirklich lÃ¶schen?");
+		Optional<ButtonType> result = alert.showAndWait();
+		if(result.get() == ButtonType.OK) {
+			pages.remove(pages.get(currentPage));
+			if(currentPage > 0) {
+				currentPage --;
+			}else {
+				currentPage++;
+			}
+			page.getChildren().clear();
+			if(pages.isEmpty()) {
+				currentPage = 0;
+				pages.add(new Group());
+				page.getChildren().add(pages.get(currentPage));
+			}
+			updatePageLabel();
 		}
-		page.getChildren().clear();
-		if(pages.isEmpty()) {
-			currentPage = 0;
-			pages.add(new Group());
-			page.getChildren().add(pages.get(currentPage));
-		}
-		updatePageLabel();
 	}
 	
 	@FXML
