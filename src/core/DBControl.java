@@ -25,7 +25,7 @@ public class DBControl {
 	public void genURL() {
 		Configuration config = MainController.getConfiguration();
 		dbURL = "jdbc:mysql://"+ config.getMySQLServer() + ":" + 
-				config.getMySQLPort() +"/FMS";
+				config.getMySQLPort() +"/eval-test";
 	}
 	
 	public boolean connect() {
@@ -53,7 +53,7 @@ public class DBControl {
 	/*Querying Methods*/
 	public String[] queryBranches(){
 		
-		String query = "select name from branches";
+		String query = "select branchName from branches";
 		Statement statement = null;
 		ResultSet result = null;
 		
@@ -71,7 +71,7 @@ public class DBControl {
 			try {
 				while(result.next()) {
 					
-					retList.add(result.getString("name"));
+					retList.add(result.getString("branchName"));
 				}
 				
 				return retList.toArray(new String[retList.size()]);
@@ -89,7 +89,7 @@ public class DBControl {
 	
 	public String[] queryGroupsInBranch(String branch) {
 	
-		String query = "select name from groups where branch='" + branch + "'";
+		String query = "select groupName from groups where branchName='" + branch + "'";
 		Statement statement = null;
 		ResultSet result = null;
 		
@@ -106,7 +106,7 @@ public class DBControl {
 			try {
 				while(result.next()) {
 					
-					retList.add(result.getString("name"));
+					retList.add(result.getString("groupName"));
 				}
 				return retList.toArray(new String[retList.size()]);
 			} catch (SQLException e) {
@@ -118,7 +118,7 @@ public class DBControl {
 	
 	public String[] queryPollsInBranch(String branch) {
 		
-		String query = "select name from polls where branch='" + branch + "'";
+		String query = "select pollName from polls where branchName='" + branch + "'";
 		Statement statement = null;
 		ResultSet result = null;
 		try {
@@ -133,7 +133,7 @@ public class DBControl {
 			ArrayList<String> retList = new ArrayList<String>();
 			try {
 				while(result.next()) {
-					retList.add(result.getString("name"));
+					retList.add(result.getString("pollName"));
 				}
 				
 				return retList.toArray(new String[retList.size()]);

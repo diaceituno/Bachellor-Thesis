@@ -85,7 +85,7 @@ public class LoginControl{
 		Configuration config = MainController.getConfiguration();
 		LDAPConnectionOptions opts = new LDAPConnectionOptions();
 		opts.setConnectTimeoutMillis(5000);
-		ldapCon = new LDAPConnection(fac);
+		ldapCon = new LDAPConnection();
 		ldapCon.setConnectionOptions(opts);
 		
 		if(!ldapCon.isConnected()) {
