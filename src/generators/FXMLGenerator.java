@@ -1,5 +1,7 @@
 package generators;
 
+import java.util.ArrayList;
+
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -7,15 +9,24 @@ import javafx.scene.control.TextArea;
 import javafx.scene.shape.Line;
 
 public class FXMLGenerator {
+	
+	public String genFXML(ArrayList<Group> pages) {
+		 
+		String fxml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+					+ "<poll>\n";
+		for(Group page : pages) {
+			fxml+="<page>\n";
+			fxml+=genFXMLPage(page.getChildren());
+			fxml+="</page>\n";
+		}
+		fxml+="</poll>";
+		return fxml;
+	}
+	
+	private String genFXMLPage(ObservableList<Node> children) {
 
-	public String genFXML(ObservableList<Node> children) {
-		
-		String header = "<?import javafx.scene.Group?>\n"
-					  + "<?import javafx.scene.control.TextArea?>"
-					  + "<?import javafx.scene.shape.Line?>\n";
-		String fxml = header + "<Group>\n<children>\n";
+		String fxml = "<Group>\n<children>\n";
 		for(Node lvlOne : children) {
-			System.out.println(lvlOne.getClass() + "|" + lvlOne.getId());
 			if(lvlOne.getClass().equals(TextArea.class)) {
 				fxml+=genTextArea(lvlOne);
 			}else if(lvlOne.getId().equals("t")) {

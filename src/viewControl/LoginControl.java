@@ -1,16 +1,11 @@
 package viewControl;
 
-import java.security.GeneralSecurityException;
 import java.util.Optional;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SimpleBindRequest;
-import com.unboundid.util.ssl.SSLUtil;
-import com.unboundid.util.ssl.TrustAllTrustManager;
 
 import core.Configuration;
 import core.MainController;
@@ -71,15 +66,6 @@ public class LoginControl{
 	
 	@FXML 
 	private void loginAction() {
-		
-		SSLUtil util = new SSLUtil(new TrustAllTrustManager());
-		SSLSocketFactory fac = null;
-		try {
-			 fac = util.createSSLSocketFactory();
-		} catch (GeneralSecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
 		/*Configuring LDAP Connection*/
 		Configuration config = MainController.getConfiguration();

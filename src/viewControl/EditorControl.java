@@ -311,7 +311,7 @@ public class EditorControl {
 	}
 	
 	public void updateBranch() {
-		
+		System.out.println(scene.getCursor());
 		DBControl dbControl = MainController.getDBControl();
 		dbControl.connect();
 		ObservableList<String> data = FXCollections.observableArrayList(dbControl.queryPollsInBranch(MainController.getBranch()));
@@ -334,6 +334,7 @@ public class EditorControl {
 			sSource.addAll(data);
 			tViewSPolls.getColumns().get(0).setText("Evaluationsformen " + MainController.getBranch());
 		}
+		scene.setCursor(Cursor.DEFAULT);
 	}
 	
 	private void showTableView() {
@@ -856,6 +857,7 @@ public class EditorControl {
 		}
 		secStage.setScene(sScene);
 		updateBranch();
+		scene.setCursor(Cursor.DEFAULT);
 		secStage.showAndWait();
 	}
 	
@@ -993,17 +995,12 @@ public class EditorControl {
 		String pollName = pollSSearchField.getText();
 		if(!pollName.isEmpty()) {
 		
+			FXMLGenerator fxmlGen = new FXMLGenerator();
+			String fxml = fxmlGen.genFXML(pages);
 			DBControl dbControl = MainController.getDBControl();
 			dbControl.connect();
-			if(!dbControl.savePollinBranch(MainController.getBranch(), pollName)) {
-				FXMLGenerator generator = new FXMLGenerator();
-				for(int i=0;i<pages.size();i++) {
-					
-					ObservableList<Node> children = pages.get(i).getChildren();
-					String fxml = generator.genFXML(children);
-					dbControl.savePageinPoll(MainController.getBranch(), pollName, i, fxml);
-				}
-			}else {
+			
+			if(dbControl.savePollinBranch(MainController.getBranch(), pollName, fxml)) {
 				Alert alert = new Alert(AlertType.CONFIRMATION);
 				alert.setTitle("Vorsicht");
 				alert.setHeaderText(null);
@@ -1014,7 +1011,36 @@ public class EditorControl {
 					save();
 				}
 			}
+			
 			dbControl.close();
+			
+			
+			
+			
+			
+			
+//			DBControl dbControl = MainController.getDBControl();
+//			dbControl.connect();
+//			if(!dbControl.savePollinBranch(MainController.getBranch(), pollName)) {
+//				FXMLGenerator generator = new FXMLGenerator();
+//				for(int i=0;i<pages.size();i++) {
+//					
+//					ObservableList<Node> children = pages.get(i).getChildren();
+//					String fxml = generator.genFXML(children);
+//					dbControl.savePageinPoll(MainController.getBranch(), pollName, i, fxml);
+//				}
+//			}else {
+//				Alert alert = new Alert(AlertType.CONFIRMATION);
+//				alert.setTitle("Vorsicht");
+//				alert.setHeaderText(null);
+//				alert.setContentText("Wollen sie die Form wirklich �berschreiben?");
+//				Optional<ButtonType> result = alert.showAndWait();
+//				if(result.get() == ButtonType.OK) {
+//					dbControl.deletepollFromBranch(MainController.getBranch(), pollName);
+//					save();
+//				}
+//			}
+//			dbControl.close();
 		}
 		secStage.close();
 	}

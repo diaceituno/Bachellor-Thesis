@@ -14,7 +14,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="82.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="82.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <MenuBar fx:id="menuBar" layoutY="2.0" prefHeight="25.0" prefWidth="675.0">
         <menus>
@@ -32,7 +32,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@Open.png" />
+                              <Image url="@open.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -50,7 +50,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Bearbeiten">
             <items>
-              <MenuItem onAction="#newPageAction" mnemonicParsing="false" text="Neue Seite">
+              <MenuItem mnemonicParsing="false" onAction="#newPageAction" text="Neue Seite">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -58,7 +58,7 @@
                            </image>
                         </ImageView>
                      </graphic></MenuItem>
-                  <MenuItem onAction="#removePageAction" mnemonicParsing="false" text="Seite löschen">
+                  <MenuItem mnemonicParsing="false" onAction="#removePageAction" text="Seite löschen">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -66,7 +66,7 @@
                            </image>
                         </ImageView>
                      </graphic></MenuItem>
-                  <MenuItem onAction="#duplicatePageAction" mnemonicParsing="false" text="Seite duplizieren">
+                  <MenuItem mnemonicParsing="false" onAction="#duplicatePageAction" text="Seite duplizieren">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -151,7 +151,7 @@
       <Group fx:id="pageGroup" layoutX="306.0" layoutY="45.0">
          <children>
             <Label fx:id="pageLbl" layoutX="40.0" layoutY="3.0" text="1/1" />
-            <Button onAction="#nextPageAction" layoutX="70.0" mnemonicParsing="false">
+            <Button layoutX="70.0" mnemonicParsing="false" onAction="#nextPageAction">
                <graphic>
                   <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -160,7 +160,7 @@
                   </ImageView>
                </graphic>
             </Button>
-            <Button onAction="#prevPageAction" mnemonicParsing="false">
+            <Button mnemonicParsing="false" onAction="#prevPageAction">
                <graphic>
                   <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                      <image>

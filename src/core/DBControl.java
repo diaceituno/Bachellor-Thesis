@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DBControl {
 	
@@ -147,7 +149,7 @@ public class DBControl {
 	
 	public String[] queryPollsInGroups(String branch, String[] groups) {
 		
-		String base = "select poll from groupspolls where branch='" + branch + "' ";
+		String base = "select pollName from groupspolls where branchName='" + branch + "' ";
 		Statement statement = null;
 		ResultSet result =  null;
 		ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
@@ -161,7 +163,7 @@ public class DBControl {
 				result = statement.executeQuery(query);
 				while(result.next()) {
 					
-					groupList.add(result.getString("poll"));
+					groupList.add(result.getString("pollName"));
 				}
 				results.add(groupList);
 			} catch (SQLException e) {
@@ -198,18 +200,32 @@ public class DBControl {
 	
 	public String[] queryPagesInPoll(String branch, String poll) {
 		
-		String query = "select fxml from pollpages where branch='" + branch + "' and poll='" + poll + "' order by number";		
+		String query = "select fxml from polls where branchName='" + branch + "' and pollName='" + poll + "'";		
 		Statement statement = null;
-		ArrayList<String> retList = null;
 		try {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(query);
-			retList = new ArrayList<String>();
+			String wholeFXML = null;
 			while(rs.next()) {
-				
-				retList.add(rs.getString("fxml"));
+				wholeFXML = rs.getString("fxml");
 			}
-			return retList.toArray(new String[retList.size()]);
+			
+			String header = "<?import javafx.scene.Group?>\n"
+			  + "<?import javafx.scene.control.TextArea?>"
+			  + "<?import javafx.scene.shape.Line?>\n";
+			
+			
+			String startRegex = "<page>";
+			String endRegex = "</page>";
+			String restFXML = wholeFXML;
+			ArrayList<String> retPages = new ArrayList<String>();
+			while(restFXML.contains("<page>")) {
+				
+				String page = header + restFXML.substring(restFXML.indexOf(startRegex) + 6, restFXML.indexOf(endRegex));
+				retPages.add(page);
+				restFXML = restFXML.substring(restFXML.indexOf(endRegex) + 7);
+			}
+			return retPages.toArray(new String[retPages.size()]);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -260,9 +276,9 @@ public class DBControl {
 		return false;
 	}
 	
-	public boolean savePollinBranch(String branch, String poll) {
+	public boolean savePollinBranch(String branch, String poll, String fxml) {
 		
-		String query = "insert into polls values('" + branch + "','" + poll + "')";
+		String query = "insert into polls values('" + branch + "','" + poll + "','" + fxml + "')";
 		Statement statement = null;
 		try {
 			statement = connection.createStatement();
@@ -293,21 +309,16 @@ public class DBControl {
 	}
 	
 	public boolean deletepollFromBranch(String branch, String poll) {
-	
-		String queryPages = "delete from pollpages where branch='" + branch + "' and poll='"+poll+"'";
-		String queryForm = "delete from polls where branch='" + branch + "' and name='" + poll + "'";
+		
+		String queryForm = "delete from polls where branchName ='" + branch + "' and pollName='" + poll + "'";
 		Statement statement = null;
 		try {
 			statement = connection.createStatement();
-			boolean retbool = statement.execute(queryPages);
-			retbool|=statement.execute(queryForm);
-			return retbool;
+			return statement.execute(queryForm);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return true;
 	}
-	
-	
 }
