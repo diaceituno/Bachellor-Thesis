@@ -85,7 +85,7 @@ public class LoginControl{
 					
 					ldapCon.connect(config.getLDAPServer(), config.getLDAPPort());
 					conEstablished = ldapCon.isConnected();
-					System.out.println(ldapCon.isConnected());
+					System.out.println("connection: " + ldapCon.isConnected());
 				} catch (LDAPException e) {
 					e.printStackTrace();
 					
@@ -107,9 +107,7 @@ public class LoginControl{
 		
 		if(!usrField.getText().isEmpty()) {
 			
-			String usrName = usrField.getText().endsWith(config.getLDAPServer()) 
-							? usrField.getText() 
-							: usrField.getText() + "@" + config.getLDAPServer();
+			String usrName= usrField.getText() + "@miqr.local";
 			SimpleBindRequest sBRequest = new SimpleBindRequest(usrName, pwdField.getText());
 			try {
 				ldapCon.bind(sBRequest);

@@ -11,6 +11,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
@@ -55,7 +56,8 @@ public class GroupControl {
 	TableView<String> tViewAPList;	//List of all Forms
 	@FXML
 	TextField pollSearchField;
-
+	@FXML
+	Button pathButton;
 	
 	public GroupControl() {
 		
@@ -190,6 +192,12 @@ public class GroupControl {
 		ObservableList<String> selected = tViewBList.getSelectionModel().getSelectedItems();
 		if(selected.size() > 0) {
 			
+			if(selected.size() > 1) {
+				pathButton.setVisible(false);
+			}else {
+				pathButton.setVisible(true);
+			}
+			
 			/*Setting up Labels*/
 			String nameLabel = selected.get(0);
 			for(int i = 1; i < selected.size() ; i++) {
@@ -272,6 +280,14 @@ public class GroupControl {
 		stage.setScene(listScene);
 	}
 
+	@FXML
+	private void setPathAction() {
+		TextInputDialog inputDialog = new TextInputDialog();
+		inputDialog.setHeaderText(null);
+		inputDialog.setContentText("AD Pfad Eingeben");
+		inputDialog.showAndWait();
+	}
+	
 	@FXML
 	private void addPollAction() {
 		

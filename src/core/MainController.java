@@ -42,7 +42,6 @@ public class MainController extends Application{
 		this.mainStage = mainStage;
 		initialize();
 	}
-
 	
 	private void initialize() {
 		
@@ -58,7 +57,7 @@ public class MainController extends Application{
 		MainController.dbControl = new DBControl();
 		if(!MainController.configuration.loadConfiguration("conf", ";")) {
 			
-			String message = "Es würde keine Konfigurationsdatei gefunden!\n" +
+			String message = "Es wï¿½rde keine Konfigurationsdatei gefunden!\n" +
 							 "Bitte LDAP und MySQL Konfiguration eingeben";
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText(null);

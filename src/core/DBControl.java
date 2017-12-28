@@ -233,7 +233,7 @@ public class DBControl {
 	/*Saving Methods*/
 	public boolean saveGroup(String branch, String group) {
 		
-		String query = "insert into groups values('" + branch + "','" + group + "')";
+		String query = "insert into groups values('" + branch + "','" + group + "','')";
 		Statement statement = null;
 		
 		try {
