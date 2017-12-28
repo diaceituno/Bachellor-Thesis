@@ -563,7 +563,7 @@ public class EditorControl {
 		}
 		
 		((TextArea) areas.getChildren().get(0)).setContextMenu(null);
-		
+		((TextArea) areas.getChildren().get(0)).setPromptText("Titel");;
 		
 		
 		for(int i=0;i<rows + 1;i++) {
@@ -996,7 +996,7 @@ public class EditorControl {
 		if(!pollName.isEmpty()) {
 		
 			FXMLGenerator fxmlGen = new FXMLGenerator();
-			String fxml = fxmlGen.genFXML(pages);
+			String fxml = fxmlGen.genFXML(MainController.getBranch(), pollName, pages);
 			DBControl dbControl = MainController.getDBControl();
 			dbControl.connect();
 			

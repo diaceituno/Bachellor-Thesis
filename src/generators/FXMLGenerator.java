@@ -10,10 +10,10 @@ import javafx.scene.shape.Line;
 
 public class FXMLGenerator {
 	
-	public String genFXML(ArrayList<Group> pages) {
+	public String genFXML(String branch, String pollName, ArrayList<Group> pages) {
 		 
 		String fxml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-					+ "<poll>\n";
+					+ "<poll branch=\"" + branch + "\" name=\"" + pollName + "\">\n";
 		for(Group page : pages) {
 			fxml+="<page>\n";
 			fxml+=genFXMLPage(page.getChildren());
@@ -49,6 +49,7 @@ public class FXMLGenerator {
 				 + "\" prefWidth=\"" + area.getPrefWidth()
 				 + "\" layoutX=\"" + area.getLayoutX() 
 				 + "\" layoutY=\"" + area.getLayoutY() 
+				 + "\" wrapText=\"true"
 				 + "\" promptText=\"" + area.getPromptText()
 				 + "\" text=\"" + area.getText() + "\"/>\n";
 		
