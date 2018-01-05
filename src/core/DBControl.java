@@ -274,6 +274,37 @@ public class DBControl {
 		return false;
 	}
 	
+	public boolean setGroupPath(String branch, String group, String path) {
+		
+		String query = "update groups set ldapPath='" + path + "' where branchName='" + branch + "' and groupName='" + group + "';";
+		Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			return statement.execute(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
+	public boolean saveUsersInGroup(String branch, String group, String[] users) {
+		
+		String query = "replace into users values ";
+		for(String user: users) {
+			query+= "('" + branch + "','" + group + "','" + user + "'),";
+		}
+		query = query.substring(0,query.length() - 1);
+		query+=";";
+		Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			return statement.execute(query);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
 	public boolean savePollinBranch(String branch, String poll, String fxml) {
 		
 		String query = "insert into polls values('" + branch + "','" + poll + "','" + fxml + "')";
@@ -319,4 +350,5 @@ public class DBControl {
 		}
 		return true;
 	}
+
 }

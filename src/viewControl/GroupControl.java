@@ -3,6 +3,7 @@ package viewControl;
 import java.util.Optional;
 
 import core.DBControl;
+import core.LDAPControl;
 import core.MainController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,6 +12,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -59,6 +62,18 @@ public class GroupControl {
 	@FXML
 	Button pathButton;
 	
+	
+	/*LDAP*/
+	private Scene ldapScene;
+	private String ldapPath; 
+	@FXML
+	private TableView<String> tViewLDAP;
+	@FXML
+	private Button openBtn; 
+	@FXML
+	private Button setBtn;
+	private boolean rdySave;
+	
 	public GroupControl() {
 		
 		/*Setting up groups in Branch Scene*/
@@ -66,7 +81,9 @@ public class GroupControl {
 		listScene = new Scene(pane);
 		pane = (AnchorPane) MainController.getIOControl().loadPane("groupFormView.fxml", this);
 		groupScene = new Scene(pane);
-
+		pane = (AnchorPane) MainController.getIOControl().loadPane("ldapView.fxml", this);
+		ldapScene = new Scene(pane);
+		
 		/*Setting up tableColumn*/
 		tColBList = new TableColumn<String, String>(MainController.getBranch() + " Gruppen");
 		tColBList.setCellValueFactory(cD -> new SimpleStringProperty(cD.getValue()));
@@ -153,10 +170,29 @@ public class GroupControl {
 			});
 		});
 		
+		/*Setting up ldapScene*/
+		TableColumn<String,String> tColLDAP = new TableColumn<String,String>();
+		tColLDAP.setCellValueFactory(cD -> new SimpleStringProperty(cD.getValue()));
+		tColLDAP.setPrefWidth(tViewLDAP.getPrefWidth() - 2);
+		tColLDAP.setResizable(false);
+		tViewLDAP.getColumns().add(tColLDAP);
+		tViewLDAP.setRowFactory(tv->{
+			TableRow<String> tr = new TableRow<>();
+			tr.setOnMouseClicked(e -> {
+				if(e.getClickCount() == 2) {
+					openAction();
+				}
+			});
+			return tr;
+		});
+		
 		/*Setting up Stage*/
 		stage = new Stage();
 		stage.setResizable(false);
 		stage.setTitle("Gruppenverwaltung " + MainController.getBranch());
+		stage.setOnCloseRequest(e -> {
+			stage.setScene(listScene);
+		});
 		updateBranch();
 	} 
 	
@@ -282,10 +318,22 @@ public class GroupControl {
 
 	@FXML
 	private void setPathAction() {
-		TextInputDialog inputDialog = new TextInputDialog();
-		inputDialog.setHeaderText(null);
-		inputDialog.setContentText("AD Pfad Eingeben");
-		inputDialog.showAndWait();
+		ldapPath = "dc=miqr,dc=local";
+		rdySave = false;
+		LDAPControl ldapControl = MainController.getLDAPControl();
+		String[] data = null;
+		
+		if(ldapControl.connect()) {
+			if(ldapControl.bind()) {
+				data = ldapControl.searchInAD(ldapPath, "objectCategory", "organizationalUnit", "name");
+			}
+		}
+		ldapControl.close();
+		if(data != null) {
+			tViewLDAP.getColumns().get(0).setText(ldapPath);
+			tViewLDAP.setItems(FXCollections.observableArrayList(data));
+		}
+		stage.setScene(ldapScene);
 	}
 	
 	@FXML
@@ -326,6 +374,100 @@ public class GroupControl {
 		tViewPList.getItems().removeAll(toRemove);
 		
 	
+	}
+
+
+	/*LDAP*/
+	@FXML
+	private void openAction() {
+		
+		String selection = tViewLDAP.getSelectionModel().getSelectedItem();
+		if(selection != null) {
+		
+			ldapPath = "ou=" + selection + "," + ldapPath;
+			
+			LDAPControl ldapControl = MainController.getLDAPControl();
+			if(ldapControl.connect()) {
+				if(ldapControl.bind()) {
+					System.out.println(ldapPath);
+					String[] data = ldapControl.searchInAD(ldapPath, "objectCategory", "organizationalUnit", "name");
+					if(data != null) {
+						tViewLDAP.setItems(FXCollections.observableArrayList(data));
+						tViewLDAP.getColumns().get(0).setText(ldapPath);
+					}
+				}
+			}
+		}
+	}
+
+	@FXML
+	private void backAction() {
+		rdySave = false;
+		ldapPath = ldapPath.replaceFirst("ou=.*?,", "");
+		LDAPControl ldapControl = MainController.getLDAPControl();
+		if(ldapControl.connect()) {
+			if(ldapControl.bind()) {
+				System.out.println(ldapPath);
+				String[] data = ldapControl.searchInAD(ldapPath, "objectCategory", "organizationalUnit", "name");
+				if(data != null) {
+					openBtn.setVisible(true);
+					setBtn.setText("nutzen");
+					tViewLDAP.setItems(FXCollections.observableArrayList(data));
+					tViewLDAP.getColumns().get(0).setText(ldapPath);
+				}
+			}
+		}
+		
+	}
+	
+	@FXML
+	private void setAction() {
+		
+		if(rdySave) {
+			DBControl dbControl = MainController.getDBControl();
+			dbControl.connect();
+			String branch = MainController.getBranch();
+			String group = tViewBList.getSelectionModel().getSelectedItem();
+			String[] users = tViewLDAP.getItems().toArray(new String[tViewLDAP.getItems().size()]);
+			if(!dbControl.saveUsersInGroup(branch,group,users)) {
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setHeaderText(null);
+				alert.setContentText("Pfad erfolgreich gesetzt");
+				alert.showAndWait();
+			}else {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText(null);
+				alert.setContentText("pfad konnte nicht gesetzt werden");
+				alert.showAndWait();
+			}
+			stage.setScene(listScene);
+			stage.close();
+		}else {
+			String selection = tViewLDAP.getSelectionModel().getSelectedItem();
+			if(selection != null) {
+			
+				ldapPath = "ou=" + selection + "," + ldapPath;
+				
+				LDAPControl ldapControl = MainController.getLDAPControl();
+				if(ldapControl.connect()) {
+					if(ldapControl.bind()) {
+						String[] data = ldapControl.searchInAD(ldapPath, "objectClass", "user", "sAMAccountName");
+						if(data != null) {
+							openBtn.setVisible(false);
+							setBtn.setText("speichern");
+							rdySave = true;
+							tViewLDAP.setItems(FXCollections.observableArrayList(data));
+							tViewLDAP.getColumns().get(0).setText(ldapPath);
+						}	DBControl dbControl = MainController.getDBControl();
+						dbControl.connect();
+						
+						
+						
+					}
+				}
+			}
+		}
+		
 	}
 }
  

@@ -1,20 +1,12 @@
 package viewControl;
 
-import java.util.Optional;
-
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPConnectionOptions;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.SimpleBindRequest;
-
-import core.Configuration;
+import core.LDAPControl;
 import core.MainController;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -25,7 +17,6 @@ public class LoginControl{
 
 	private Stage stage;
 	private Scene scene;
-	private LDAPConnection ldapCon;
 	
 	@FXML
 	private Button loginBtn;
@@ -67,55 +58,18 @@ public class LoginControl{
 	@FXML 
 	private void loginAction() {
 		
-		/*Configuring LDAP Connection*/
-		Configuration config = MainController.getConfiguration();
-		LDAPConnectionOptions opts = new LDAPConnectionOptions();
-		opts.setConnectTimeoutMillis(5000);
-		ldapCon = new LDAPConnection();
-		ldapCon.setConnectionOptions(opts);
+		LDAPControl ldapControl = MainController.getLDAPControl();
+		ldapControl.updateVals(usrField.getText(), pwdField.getText());
 		
-		if(!ldapCon.isConnected()) {
+		if(ldapControl.connect()) {
 			
-			boolean conEstablished = false;
-			Alert alert;
-			while(!conEstablished) {
-				
-				config = MainController.getConfiguration();
-				try {
-					
-					ldapCon.connect(config.getLDAPServer(), config.getLDAPPort());
-					conEstablished = ldapCon.isConnected();
-					System.out.println("connection: " + ldapCon.isConnected());
-				} catch (LDAPException e) {
-					e.printStackTrace();
-					
-					alert = new Alert(AlertType.CONFIRMATION);
-					alert.initOwner(stage);
-					alert.setTitle("Konfigurationsfehler");
-					alert.setHeaderText(null);
-					alert.setContentText("LDAP Server konne nicht erreicht werden.\nKonfiguration �ndern?");
-					Optional<ButtonType> result = alert.showAndWait();
-					if(result.get() == ButtonType.OK) {
-						MainController.configScene();
-						return;
-					}else {
-						MainController.failure(null, false);
-					}
-				}
-			}
-		}
-		
-		if(!usrField.getText().isEmpty()) {
-			
-			String usrName= usrField.getText() + "@miqr.local";
-			SimpleBindRequest sBRequest = new SimpleBindRequest(usrName, pwdField.getText());
-			try {
-				ldapCon.bind(sBRequest);
+			if(ldapControl.bind()) {
 				loginSuccess();
-			} catch (LDAPException e) {
-				e.printStackTrace();
+			}else {
 				loginFail();
 			}
+		}else {
+			connectionFailure();
 		}
 	}
 	
@@ -138,7 +92,15 @@ public class LoginControl{
 		stage.showAndWait();
 	}
 	
-	
+	public void connectionFailure() {
+		
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText(null);
+		alert.setTitle("Fehler");
+		alert.setContentText("Verbindung mit der AD konnte nicht aufgebaut werden");
+		alert.showAndWait();
+		MainController.failure(null, true);
+	}
 
 }
  

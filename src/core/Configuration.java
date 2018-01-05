@@ -4,6 +4,7 @@ public class Configuration {
 
 	private String ldapServer;
 	private int ldapPort;
+	private String ldapBase;
 	
 	private String mySQLServer;
 	private int mySQLPort;
@@ -18,6 +19,10 @@ public class Configuration {
 	
 	public void setLDAPPort(int ldapPort) {
 		this.ldapPort = ldapPort;
+	}
+	
+	public void setLDAPBase(String ldapBase) {
+		this.ldapBase = ldapBase;
 	}
 	
 	public void setMySQLServer(String mySQLServer) {
@@ -42,6 +47,11 @@ public class Configuration {
 	
 	public int getLDAPPort() {
 		return ldapPort;
+	}
+	
+	public String getLDAPBase() {
+		return "dc=miqr,dc=local";
+		//return ldapBase;
 	}
 	
 	public String getMySQLServer() {

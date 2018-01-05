@@ -20,6 +20,7 @@ public class MainController extends Application{
 	private Stage mainStage;
 	private static IOControl ioControl;
 	private static DBControl dbControl;
+	private static LDAPControl ldapControl;
 	private static Configuration configuration;
 	
 	/*Scenes*/
@@ -68,6 +69,7 @@ public class MainController extends Application{
 		}
 		
 		MainController.dbControl.genURL();
+		ldapControl = new LDAPControl();
 		loginScene();
 		if(loginStatus) {
 			hubScene();
@@ -154,6 +156,10 @@ public class MainController extends Application{
 		return configuration;
 	}
 
+	public static LDAPControl getLDAPControl() {
+		return ldapControl;
+	}
+	
 	public static void updateBranch(String branch) {
 		MainController.branch = branch;
 		if(groupControl != null) {
