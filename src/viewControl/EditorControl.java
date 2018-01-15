@@ -182,12 +182,7 @@ public class EditorControl {
 			}
 		});
 		
-		scene.focusOwnerProperty().addListener((ob,ov,nv)->{
-			if(nv.getClass().equals(TextArea.class)) {
-				//AKI VA EL GROSOR DE LA LETRA PERRO
-			}
-		});
-		
+	
 		scene.setOnKeyPressed(e -> {
 			if(e.getCode() == KeyCode.ESCAPE) {
 				if(toggleGroup.getSelectedToggle() != null) {
@@ -374,6 +369,16 @@ public class EditorControl {
 		iArea.setEditable(false);
 		retGroup.getChildren().addAll(tArea,iArea);
 		retGroup.setId("i");
+		
+		ContextMenu cMenu = new ContextMenu();
+		MenuItem item = new MenuItem("entfernen");
+		cMenu.getItems().add(item);
+		item.setOnAction(e -> {
+			pages.get(currentPage).getChildren().remove(retGroup);
+		});
+		
+		tArea.setContextMenu(cMenu);
+		iArea.setContextMenu(cMenu);
 		return retGroup;
 	}
 	
@@ -439,6 +444,16 @@ public class EditorControl {
 			}
 		
 		});
+		
+		ContextMenu cMenu = new ContextMenu();
+		MenuItem item = new MenuItem("entfernen");
+		cMenu.getItems().add(item);
+		area.setContextMenu(cMenu);
+		
+		item.setOnAction(e -> {
+			pages.get(currentPage).getChildren().remove(area);
+		});
+		
 	}
 	
 	private Group genTblGroup(int rows, int cols, double x, double y) {
@@ -562,7 +577,14 @@ public class EditorControl {
 			area.setContextMenu(cMenu);
 		}
 		
-		((TextArea) areas.getChildren().get(0)).setContextMenu(null);
+		ContextMenu cMenu = new ContextMenu();
+		MenuItem item = new MenuItem("entfernen");
+		cMenu.getItems().add(item);
+		item.setOnAction(e -> {
+			pages.get(currentPage).getChildren().remove(areas.getParent());
+		});
+		
+		((TextArea) areas.getChildren().get(0)).setContextMenu(cMenu);
 		((TextArea) areas.getChildren().get(0)).setPromptText("Titel");;
 		
 		
@@ -911,9 +933,10 @@ public class EditorControl {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Vorsicht!");
 		alert.setHeaderText(null);
-		alert.setContentText("Wenn sie OK dr�cken werden alle ungespeicherte Daten verloren\n");
+		alert.setContentText("Wollen sie speichern?");
 		Optional<ButtonType> result = alert.showAndWait();
 		if(result.get() == ButtonType.OK) {
+			saveAction();
 			pages.clear();
 			currentPage = -1;
 			page.getChildren().clear();
